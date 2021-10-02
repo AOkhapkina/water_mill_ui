@@ -11,7 +11,7 @@ export const state = () => ({
   }
 })
 //получаем текущее состояние мельницы
-export const getter = {
+export const getters = {
   getState(state){
     return state.data;
   }
@@ -20,9 +20,14 @@ export const actions = {
   updateState(context, data){
     context.commit("setState", data)
   },
-  addWater(context, capacity){
-    axios.post("/rest/mill/water/"+ capacity).then((res)=>{
-      window.console.log("Water + " + capacity)
+  // addWater(context, capacity){
+  //   axios.post("/rest/mill/water/"+ capacity).then((res)=>{
+  //     window.console.log("Water + " + capacity)
+  //   })
+  // },
+  fetchData(context){
+    axios.get("/rest/mill").then((res)=>{
+      context.commit("setState", res)
     })
   },
   addMillet(context, capacity) {
@@ -38,5 +43,7 @@ export const actions = {
 }
 
 export  const mutations = {
-
+    setState(state, obj) {
+      state.data = obj
+    }
 }

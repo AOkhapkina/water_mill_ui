@@ -3,11 +3,11 @@
     <b-row>
       <b-col style="padding: 5%;">
         <ul class="tools">
-          <li class="water"><b-badge variant="primary">0</b-badge></li>
+          <li class="water" @click="addWater"><b-badge variant="primary">0</b-badge></li>
           <li class="txt">+</li>
-          <li class="millet"><b-badge variant="warning"></b-badge></li>
+          <li class="millet" @click="addMillet"><b-badge variant="warning"></b-badge></li>
           <li class="txt">=</li>
-          <li class="flour"><b-badge variant="primary"></b-badge></li>
+          <li class="flour" @click="dropFlour"><b-badge variant="primary"></b-badge></li>
         </ul>
         <div>
           <h3>Water: 0</h3>
@@ -21,6 +21,50 @@
     </b-row>
   </b-container>
 </template>
+
+<script>
+import {mapGetters, mapActions} from "vuex"
+export default {
+  components: {},
+  computed: mapGetters({
+    state: "mill/getState" //ctrl + space
+  }),
+  //налаживаем связь с backend
+  mounted(){
+    this.socket = new WebSocket("ws://localhost:8080/websocket")
+    this.socket.onopen =  ()=>{
+      window.console.log("Socket opened")
+    }
+    this.socket.onmessage=(msg, ctx)=>{
+      this.updateState(JSON.parse(msg.data)) // распарсить объект JSON
+    }
+    setInterval(this.pushSocket,300)
+  },
+  fetch(){
+    this.$store.dispatch("mill/fetchData")
+  },
+  //Диспетчеризация действий в компонентах при помощи this.$store.dispatch('xxx')
+  // или используя вспомогательную функцию mapActions, создающую локальные псевдонимы для действий
+  // в виде методов компонента (требуется наличие корневого $store)
+  methods: {
+    pushSocket(){
+      this.socket.send(new Date());
+    },
+    updateState(){
+      this.$store.dispatch("mill/updateState", data)
+    },
+    addWater() {
+      this.$store.dispatch("mill/addWater", 10)
+    },
+    addMillet() {
+      this.$store.dispatch("mill/addMillet", 10)
+    },
+    dropFlour() {
+      this.$store.dispatch("mill/dropFlour")
+    }
+  }
+}
+</script>
 
 
 
